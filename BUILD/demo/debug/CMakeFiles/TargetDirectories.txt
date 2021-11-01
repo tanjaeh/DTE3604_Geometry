@@ -1,0 +1,3 @@
+C:/dev/DTE3604_Geometry/BUILD/demo/debug/CMakeFiles/QmlDemo.dir
+C:/dev/DTE3604_Geometry/BUILD/demo/debug/CMakeFiles/edit_cache.dir
+C:/dev/DTE3604_Geometry/BUILD/demo/debug/CMakeFiles/rebuild_cache.dir

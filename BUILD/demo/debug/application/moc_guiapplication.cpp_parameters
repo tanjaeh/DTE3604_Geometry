@@ -1,0 +1,5 @@
+-DWIN32
+--compiler-flavor=msvc
+-o
+C:/dev/DTE3604_Geometry/BUILD/demo/debug/application/moc_guiapplication.cpp
+C:/dev/DTE3604_Geometry/demo/application/guiapplication.h
