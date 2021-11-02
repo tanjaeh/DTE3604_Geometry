@@ -4,6 +4,9 @@
 #include "scenario.h"
 #include "testtorus.h"
 
+// My objects
+#include "curves/modelCurve.h"
+#include "curves/B-spline_2rd_deg.h"
 
 // hidmanager
 #include "hidmanager/defaulthidmanager.h"
@@ -56,6 +59,9 @@ void Scenario::initializeScenario() {
   scene()->insertCamera( proj_rcpair.camera.get() );
   proj_rcpair.renderer->reshape( GMlib::Vector<int,2>(init_viewport_size, init_viewport_size) );
 
+  // How to change color
+//  proj_rcpair.renderer->setClearColor(GMlib::GMcolor::rosyBrown());
+
 
   /***************************************************************************
    *                                                                         *
@@ -66,16 +72,38 @@ void Scenario::initializeScenario() {
   GMlib::Material mm(GMlib::GMmaterial::polishedBronze());
   mm.set(45.0);
 
-  auto ptom = new TestTorus(1.0f, 0.4f, 0.6f);
-  ptom->toggleDefaultVisualizer();
-  ptom->sample(60,60,1,1);
-  this->scene()->insert(ptom);
-  auto ptrack = new GMlib::PathTrack();
-  ptrack->setLineWidth(2);
-  ptom->insert(ptrack);
-  auto ptrack2 = new GMlib::PathTrackArrows();
-  ptrack2->setArrowLength(2);
-  ptom->insert(ptrack2);
+//auto ptom = new TestTorus(1.0f, 0.4f, 0.6f);
+//  ptom->toggleDefaultVisualizer();
+//  ptom->sample(60,60,1,1);
+//  this->scene()->insert(ptom);
+//  auto ptrack = new GMlib::PathTrack();
+//  ptrack->setLineWidth(2);
+//  ptom->insert(ptrack);
+//  auto ptrack2 = new GMlib::PathTrackArrows();
+//  ptrack2->setArrowLength(2);
+//  ptom->insert(ptrack2);
+
+//  auto modelCurve = new ModelCurve<float>(5.0f, 2.0f);
+//  modelCurve->toggleDefaultVisualizer();
+//  modelCurve->sample(60,60);
+//  this->scene()->insert(modelCurve);
+
+
+  GMlib::DVector<GMlib::Vector<float,3>> controlPoints(9);
+  controlPoints[0] = GMlib::Vector<float,3>(0, 0, 0);
+  controlPoints[1] = GMlib::Vector<float,3>(0, 1, 0);
+  controlPoints[2] = GMlib::Vector<float,3>(3, 0, 1);
+  controlPoints[3] = GMlib::Vector<float,3>(3, 4, 0);
+  controlPoints[4] = GMlib::Vector<float,3>(0, 1, 6);
+  controlPoints[5] = GMlib::Vector<float,3>(1, 1, 1);
+  controlPoints[6] = GMlib::Vector<float,3>(0, 8, 0);
+  controlPoints[7] = GMlib::Vector<float,3>(0, 1, 8);
+  controlPoints[8] = GMlib::Vector<float,3>(9, 0, 1);
+
+  auto bSpline = new BSpline<float>(controlPoints);
+  bSpline->toggleDefaultVisualizer();
+  bSpline->sample(60,0);
+  this->scene()->insert(bSpline);
 
 }
 
