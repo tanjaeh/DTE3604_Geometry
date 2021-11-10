@@ -7,6 +7,9 @@
 // My objects
 #include "curves/modelCurve.h"
 #include "curves/B-spline_2rd_deg.h"
+#include "curves/closedSubDivisionCurve.h"
+#include "curves/BlendingSplineCurve.h"
+#include <parametrics/surfaces/gmpsphere.h>
 
 // hidmanager
 #include "hidmanager/defaulthidmanager.h"
@@ -89,21 +92,61 @@ void Scenario::initializeScenario() {
 //  this->scene()->insert(modelCurve);
 
 
-  GMlib::DVector<GMlib::Vector<float,3>> controlPoints(9);
-  controlPoints[0] = GMlib::Vector<float,3>(0, 0, 0);
-  controlPoints[1] = GMlib::Vector<float,3>(0, 1, 0);
-  controlPoints[2] = GMlib::Vector<float,3>(3, 0, 1);
-  controlPoints[3] = GMlib::Vector<float,3>(3, 4, 0);
-  controlPoints[4] = GMlib::Vector<float,3>(0, 1, 6);
-  controlPoints[5] = GMlib::Vector<float,3>(1, 1, 1);
-  controlPoints[6] = GMlib::Vector<float,3>(0, 8, 0);
-  controlPoints[7] = GMlib::Vector<float,3>(0, 1, 8);
-  controlPoints[8] = GMlib::Vector<float,3>(9, 0, 1);
+//  GMlib::DVector<GMlib::Vector<float, 3>> controlPoints(9);
+//  controlPoints[0] = GMlib::Vector<float, 3>(0, 0, 0);
+//  controlPoints[1] = GMlib::Vector<float, 3>(0, 1, 0);
+//  controlPoints[2] = GMlib::Vector<float, 3>(3, 0, 1);
+//  controlPoints[3] = GMlib::Vector<float, 3>(3, 4, 0);
+//  controlPoints[4] = GMlib::Vector<float, 3>(0, 1, 6);
+//  controlPoints[5] = GMlib::Vector<float, 3>(1, 1, 1);
+//  controlPoints[6] = GMlib::Vector<float, 3>(0, 8, 0);
+//  controlPoints[7] = GMlib::Vector<float, 3>(0, 1, 8);
+//  controlPoints[8] = GMlib::Vector<float, 3>(9, 0, 1);
 
-  auto bSpline = new BSpline<float>(controlPoints);
-  bSpline->toggleDefaultVisualizer();
-  bSpline->sample(60,0);
-  this->scene()->insert(bSpline);
+
+  GMlib::DVector<GMlib::Vector<float,3>> controlPoints(5);
+  controlPoints[0] = GMlib::Vector<float,3>(0, 0, 0);
+  controlPoints[1] = GMlib::Vector<float,3>(3, 0, 1);
+  controlPoints[2] = GMlib::Vector<float,3>(1, 0, 3);
+  controlPoints[3] = GMlib::Vector<float,3>(3, 0, 5);
+  controlPoints[4] = GMlib::Vector<float,3>(0, 0, 6);
+
+
+  //Add control points to scene
+  for(int i = 0 ; i < controlPoints.getDim() ; i++){
+      auto sph = new GMlib::PSphere<float>(0.1f);
+      sph->translate(controlPoints[i]);
+      sph->toggleDefaultVisualizer();
+      sph->sample(60,60,1,1);
+      this->scene()->insert(sph);
+  }
+
+
+  //Using linear function B = w(t)
+  auto b_spline_normal = new BSpline<float>(controlPoints, false);
+  b_spline_normal->toggleDefaultVisualizer();
+  b_spline_normal->sample(60,0);
+  this->scene()->insert(b_spline_normal);
+
+  //Using polynomial function of first order Blend = BPF(w(t))
+  auto b_spline_blend = new BSpline<float>(controlPoints, true);
+  b_spline_blend->toggleDefaultVisualizer();
+  b_spline_blend->sample(60,0);
+  b_spline_blend->setColor(GMlib::GMcolor::azure());
+  this->scene()->insert(b_spline_blend);
+
+
+  auto b_spline = new BSpline<float>(controlPoints, 4);
+  b_spline->toggleDefaultVisualizer();
+  b_spline->sample(60, 0);
+  b_spline->setColor(GMlib::GMcolor::greenYellow());
+  this->scene()->insert(b_spline);
+
+  auto subDivCurve = new ClosedSubDivisionCurve<float>(controlPoints, 3);
+  subDivCurve->toggleDefaultVisualizer();
+  subDivCurve->sample(6, 0);
+  subDivCurve->setColor(GMlib::GMcolor::hotPink());
+  this->scene()->insert(subDivCurve);
 
 }
 
