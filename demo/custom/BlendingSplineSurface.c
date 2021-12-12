@@ -123,8 +123,6 @@ void BlendingSurface<T>::eval(T u, T v, int d1, int d2, bool left_u, bool left_v
 }
 
 
-
-
 //Private
 template <typename T>
 void BlendingSurface<T>::generateKnotVector(int n, bool isU, std::vector<T>& knotVector){

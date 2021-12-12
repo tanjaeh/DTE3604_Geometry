@@ -104,12 +104,12 @@ void Scenario::initializeScenario() {
 
   bool showSubDivisionCurve = false;
 
-  bool showAstroid = false;
-  bool showEpitrochoid = false;
+  bool showAstroid = true;
+  bool showEpitrochoid = true;
   bool showVivianisCurve = false;
-  bool showAnimation = false;
+  bool showAnimation = true;
 
-  bool showBlendingSurface = true;
+  bool showBlendingSurface = false;
 
 
   GMlib::DVector<GMlib::Vector<float,3>> controlPoints(5);
@@ -166,7 +166,7 @@ void Scenario::initializeScenario() {
 
   // ModelCurve and blending curve
   if(showAstroid){
-      auto astroid = new AstroidCurve<float>(2.0f, 5.0f);
+      auto astroid = new AstroidCurve<float>(8.0f, 8.0f);
       astroid->toggleDefaultVisualizer();
       astroid->sample(60,60);
       if(!showAnimation){
@@ -174,17 +174,17 @@ void Scenario::initializeScenario() {
       }
 
       if(showAnimation){
-          auto bls_astroid = new BlendingSpline<float>(astroid, 7);
+          auto bls_astroid = new BlendingSpline<float>(astroid, 7, 2);
           bls_astroid->toggleDefaultVisualizer();
           bls_astroid->sample(200, 0);
-          //bls_astroid->showControlCurves();
+//          bls_astroid->showControlCurves();
           this->scene()->insert(bls_astroid);
       }
 
   }
 
   if(showEpitrochoid){
-      auto epi = new Epitrochid<float>(2.0f, 5.0f);
+      auto epi = new Epitrochid<float>(1.0f, 1.0f);
       epi->toggleDefaultVisualizer();
       epi->sample(200,0);
       if(!showAnimation){

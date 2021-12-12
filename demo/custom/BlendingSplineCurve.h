@@ -4,6 +4,13 @@
 #include "../../gmlib/modules/parametrics/gmpcurve.h"
 #include "../../gmlib/modules/parametrics/curves/gmpsubcurve.h"
 
+enum AnimationCycle{
+    Growing,
+    Shrinking,
+    Flying
+};
+
+
 template <typename T>
 class BlendingSpline : public GMlib::PCurve<T, 3>{
     GM_SCENEOBJECT(BlendingSpline)
@@ -44,11 +51,15 @@ private:
      void switchColor();
      void epitrochoid_anim();
      void astroid_anim();
+     void changeAnimation();
+     GMlib::Vector<float, 3> circleMovement(float r, float currentAngle);
      int _wantedAnimation;
      int _colorNum = 0;
      float _angle = 0.0f;
      T _move = 0.005;
      double _rot = 0.01;
+
+     AnimationCycle current_animation = Growing;
 
 
      std::vector< GMlib::PSubCurve<T>* > _controlCurves;

@@ -11,9 +11,6 @@ BlendingSpline<T>::BlendingSpline(GMlib::PCurve<T, 3>* copy, int n, int wantedAn
     _wantedAnimation = wantedAnimation;
     _colorNum = wantedAnimation;
 
-    std::cout << copy->getRadius(T(1)) << std::endl;
-
-
     //Change
     generateKnots(n+1);
 
@@ -66,6 +63,9 @@ void BlendingSpline<T>::localSimulate(double dt){
     switch (_wantedAnimation) {
     case 1:
         epitrochoid_anim();
+        break;
+    case 2:
+        astroid_anim();
         break;
     default:
         break;
@@ -204,20 +204,25 @@ void BlendingSpline<T>::switchColor(){
 
 template <typename T>
 void BlendingSpline<T>::epitrochoid_anim(){
-    _controlCurves[0]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(1, 0, 0));
-    _controlCurves[2]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(1, 0, 1));
-    _controlCurves[4]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(-1, 0, 1));
-    _controlCurves[6]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(1, 0, 0));
-    _controlCurves[8]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(1, 0, 1));
-    _controlCurves[10]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(-1, 0, 1));
+    if((current_animation == Growing) || (current_animation == Shrinking)){
+        _controlCurves[0]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(1, 0, 0));
+        _controlCurves[2]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(1, 0, 1));
+        _controlCurves[4]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(-1, 0, 1));
+        _controlCurves[6]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(1, 0, 0));
+        _controlCurves[8]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(1, 0, 1));
+        _controlCurves[10]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(-1, 0, 1));
 
-    auto diag = (_move/0.005) * sqrt((_move*_move)/2);
-    _controlCurves[1]->translate(GMlib::Vector<T,3>(diag, 0, diag));
-    _controlCurves[3]->translate(GMlib::Vector<T,3>(0, 0, _move));
-    _controlCurves[5]->translate(GMlib::Vector<T,3>(-diag, 0, diag));
-    _controlCurves[7]->translate(GMlib::Vector<T,3>(-diag, 0, -diag));
-    _controlCurves[9]->translate(GMlib::Vector<T,3>(0, 0, -_move));
-    _controlCurves[11]->translate(GMlib::Vector<T,3>(diag, 0, -diag));
+        auto diag = (_move/0.005) * sqrt((_move*_move)/2);
+        _controlCurves[1]->translate(GMlib::Vector<T,3>(diag, 0, diag));
+        _controlCurves[3]->translate(GMlib::Vector<T,3>(0, 0, _move));
+        _controlCurves[5]->translate(GMlib::Vector<T,3>(-diag, 0, diag));
+        _controlCurves[7]->translate(GMlib::Vector<T,3>(-diag, 0, -diag));
+        _controlCurves[9]->translate(GMlib::Vector<T,3>(0, 0, -_move));
+        _controlCurves[11]->translate(GMlib::Vector<T,3>(diag, 0, -diag));
+    }
+    if(current_animation == Flying){
+
+    }
 
 
 
@@ -225,8 +230,103 @@ void BlendingSpline<T>::epitrochoid_anim(){
     if(fmod(_angle, M_PI/5) < 0.009){
         switchColor();
     }
+
+
     if(_angle > M_PI){
-        _move = -_move;
+        changeAnimation();
+        if ((current_animation == Growing) || (current_animation == Shrinking)){
+            _move = -_move;
+        }
         _angle = 0.0f;
     }
 }
+
+
+template <typename T>
+void BlendingSpline<T>::astroid_anim(){
+//    _controlCurves[0]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(1, 0, 0));
+//    _controlCurves[2]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, 1));
+//    _controlCurves[4]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(-1, 0, 0));
+//    _controlCurves[6]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, -1));
+
+//    _controlCurves[0]->translate(GMlib::Vector<T,3>(-_move, 0, 0));
+//    _controlCurves[2]->translate(GMlib::Vector<T,3>(0, 0, -_move));
+//    _controlCurves[4]->translate(GMlib::Vector<T,3>(_move, 0, 0));
+//    _controlCurves[6]->translate(GMlib::Vector<T,3>(0, 0, _move));
+
+//    auto diag = (_move/0.005) * sqrt((_move*_move)/2);
+//    _controlCurves[1]->translate(GMlib::Vector<T,3>(diag, 0, diag));
+//    _controlCurves[3]->translate(GMlib::Vector<T,3>(-diag, 0, diag));
+//    _controlCurves[5]->translate(GMlib::Vector<T,3>(-diag, 0, -diag));
+//    _controlCurves[7]->translate(GMlib::Vector<T,3>(diag, 0, -diag));
+
+//    _controlCurves[0]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, 1));
+//    _controlCurves[1]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, 1));
+//    _controlCurves[2]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, 1));
+//    _controlCurves[3]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, 1));
+//    _controlCurves[4]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, 1));
+//    _controlCurves[5]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, 1));
+//    _controlCurves[6]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, 1));
+//    _controlCurves[7]->rotate(GMlib::Angle(_rot), GMlib::Vector<T,3>(0, 0, 1));
+
+    auto bigR = 8.0f;
+    auto smallR = sin(45*M_PI_180) * (8.0f / sin(90*M_PI_180));
+
+    _controlCurves[0]->translate( circleMovement(bigR, -M_PI/2 + _angle) );
+    _controlCurves[4]->translate( circleMovement(bigR, M_PI/2 + _angle) );
+
+
+    _controlCurves[1]->translate( circleMovement(smallR, -M_PI/2 + _angle) );
+    _controlCurves[3]->translate( circleMovement(smallR, M_PI/2 + _angle) );
+    _controlCurves[5]->translate( circleMovement(smallR, M_PI/2 + _angle) );
+    _controlCurves[7]->translate( circleMovement(smallR, -M_PI/2 + _angle) );
+
+
+
+    _angle += _rot;
+    if(fmod(_angle, M_PI/5) < 0.009){
+        switchColor();
+    }
+    if(_angle > M_2PI){
+        _move = -_move;
+        _angle = 0.0f;
+    }
+
+}
+
+
+template <typename T>
+void BlendingSpline<T>::changeAnimation(){
+    switch (current_animation) {
+    case Growing:
+        current_animation = Flying;
+        break;
+    case Flying:
+        current_animation = Shrinking;
+        break;
+    case Shrinking:
+        current_animation = Growing;
+        break;
+    default:
+        current_animation = Growing;
+        break;
+    }
+}
+
+template <typename T>
+GMlib::Vector<float, 3> BlendingSpline<T>::circleMovement(float r, float currentAngle){
+    auto radius = r * 0.7f;
+    auto prevPosY = radius * cos(currentAngle - _rot);
+    auto prevPosX = radius * sin(currentAngle - _rot);
+
+    auto posY = radius * cos(currentAngle);
+    auto posX = radius * sin(currentAngle);
+
+    auto moveX = prevPosX - posX;
+    auto moveY = prevPosY - posY;
+
+    return GMlib::Vector<float, 3>(moveX, moveY, 0.0f);
+}
+
+
+
