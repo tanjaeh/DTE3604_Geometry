@@ -103,7 +103,7 @@ namespace GMlib {
     CURVE_TYPE                   _type_local;
     PCurve<T,3>*                 _origin;     //!< Optional - Original curve (to copy)
     DVector<PCurve<T,3>*>        _c;          //!< Local curves (control curves)
-    DVector<T>                   _t;          //!< knot vector
+    DVector<T>                   _knotVector;          //!< knot vector
     bool                         _cl;         //!< closed (or open) curve?
 
     BasisEvaluator<long double>* _evaluator;  //!< Evaluator for Expo-rational B-functions

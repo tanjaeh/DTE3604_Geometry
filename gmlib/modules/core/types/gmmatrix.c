@@ -2277,4 +2277,18 @@ namespace GMlib {
 
 
 
+  template <typename T>
+  inline
+  HqMatrix<T,3> HqMatrix<T,3>::operator*( double d ) const {
+      HqMatrix<T,3> r;
+      for(int i=0 ; i<4 ; i++){
+          for(int j=0 ; j<4 ; j++){
+              r[i][j] = (*this)(i)(j)*d;
+          }
+      }
+      return r;
+  }
+
+
+
 } // END namespace GMlib

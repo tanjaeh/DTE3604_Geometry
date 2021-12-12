@@ -75,7 +75,7 @@ namespace GMlib {
     // Make local curves.
     _c.setDim(n);
     for( int i = 0; i < n; i++ ) {
-       _c[i] = new PSubCurve<T>(g,  _t[i], _t[i+2], _t[i+1]);
+       _c[i] = new PSubCurve<T>(g,  _knotVector[i], _knotVector[i+2], _knotVector[i+1]);
        _c[i]->setNumber(i);
        insertLocal(_c[i]);
     }
@@ -110,7 +110,7 @@ namespace GMlib {
     // Make local curves.
     _c.setDim(n);
     for( int i = 0; i < n; i++ ) {
-      _c[i] = new PBezierCurve<T>(g->evaluateParent(_t[i+1], d), _t[i], _t[i+1], _t[i+2]);
+      _c[i] = new PBezierCurve<T>(g->evaluateParent(_knotVector[i+1], d), _knotVector[i], _knotVector[i+1], _knotVector[i+2]);
       _c[i]->setNumber(i);
       insertLocal(_c[i]);
     }
@@ -143,7 +143,7 @@ namespace GMlib {
     // Make local curves.
     _c.setDim(n);
     for( int i = 0; i < n; i++ ) {
-      _c[i] = new PArc<T>(g->evaluateParent(_t[i+1], 2), _t[i], _t[i+1], _t[i+2]);
+      _c[i] = new PArc<T>(g->evaluateParent(_knotVector[i+1], 2), _knotVector[i], _knotVector[i+1], _knotVector[i+2]);
       _c[i]->setNumber(i);
       insertLocal(_c[i]);
     }
@@ -166,7 +166,7 @@ namespace GMlib {
       _origin = copy._origin;
 
       // Copy the knot vector
-      _t = copy._t;
+      _knotVector = copy._knotVector;
 
       // sync local patches
       const DVector<PCurve<T,3>*> &c = copy._c;
@@ -246,7 +246,7 @@ namespace GMlib {
               generateKnotVector(_origin, _c.getDim(), isClosed());
               // Now - uppdate local curves.
               for( int i = 0; i < _c.getDim(); i++ )
-                  _c[i]->openClosedChanged(_t[i], _t[i+1], _t[i+2]);
+                  _c[i]->openClosedChanged(_knotVector[i], _knotVector[i+1], _knotVector[i+2]);
           }
           sample(m, d);
           for(int j=0; j<_c.getDim(); j++)
@@ -294,7 +294,7 @@ namespace GMlib {
   template <typename T>
   void PERBSCurve<T>::eval( T t, int d, bool left ) const
   {
-    int k = EvaluatorStatic<T>::knotIndex(_t, t, 1, left);
+    int k = EvaluatorStatic<T>::knotIndex(_knotVector, t, 1, left);
 
     IndexBsp ii( k, 2, _c.getDim());
 
@@ -302,7 +302,7 @@ namespace GMlib {
     DVector<Vector<T,3>> c0 = _c[ii[0]]->evaluateParent(t, d);
 
     // If t == _t[k], the sample is at the knot, set the values to the values of the first local curve.
-    if(std::abs(t - _t[k]) < 1e-5) { this->_p = c0; return; }
+    if(std::abs(t - _knotVector[k]) < 1e-5) { this->_p = c0; return; }
 
     // Evaluating second Local Curve @ (t-_t[k])/(_t[k+2]-_t[k)
     this->_p = _c[ii[1]]->evaluateParent(t - (ii[0]<ii[1] ? T(0):this->getParDelta()), d);
@@ -340,7 +340,7 @@ namespace GMlib {
 
     static Vector<T,3> B;
 
-    _evaluator->set( _t[k], _t[k+1] - _t[k] );
+    _evaluator->set( _knotVector[k], _knotVector[k+1] - _knotVector[k] );
     B[0] = 1 - (*_evaluator)(t);
     switch(d) {
       case 2: B[2] = - _evaluator->getDer2();
@@ -377,14 +377,14 @@ namespace GMlib {
 
   template <typename T>
   T PERBSCurve<T>::getStartP() const {
-    return _t(1);
+    return _knotVector(1);
   }
 
 
 
   template <typename T>
   T PERBSCurve<T>::getEndP() const {
-    return _t(_t.getDim()-2);
+    return _knotVector(_knotVector.getDim()-2);
   }
 
 
@@ -476,17 +476,17 @@ namespace GMlib {
 
       if(closed) {
           const T  dt = (ep-sp)/n;
-          _t.setDim(n+3);
+          _knotVector.setDim(n+3);
           for(int i=0; i<n+3; i++ )
-              _t[i] = sp + (i-1) * dt;
+              _knotVector[i] = sp + (i-1) * dt;
       }
       else {
           const T  dt = (ep-sp)/(n-1);
-          _t.setDim(n+2);
-          _t[0] = _t[1] = sp;             // Set the start knots
+          _knotVector.setDim(n+2);
+          _knotVector[0] = _knotVector[1] = sp;             // Set the start knots
           for(int i = 2; i < n; i++)
-              _t[i] = sp + (i-1)*dt;      // Set the "step"-knots
-          _t[n] = _t[n+1] = ep;           // Set the end knots
+              _knotVector[i] = sp + (i-1)*dt;      // Set the "step"-knots
+          _knotVector[n] = _knotVector[n+1] = ep;           // Set the end knots
       }
       _cl = closed;
   }
@@ -502,17 +502,17 @@ namespace GMlib {
 
     if(closed) {
         const T  dt = (ep-sp)/n;
-        _t.setDim(n+3);
+        _knotVector.setDim(n+3);
         for(int i=0; i<n+3; i++ )
-            _t[i] = sp + (i-1) * dt;
+            _knotVector[i] = sp + (i-1) * dt;
     }
     else {
         const T  dt = (ep-sp)/(n-1);
-        _t.setDim(n+2);           
-        _t[0] = _t[1] = sp;             // Set the start knots
+        _knotVector.setDim(n+2);           
+        _knotVector[0] = _knotVector[1] = sp;             // Set the start knots
         for(int i = 2; i < n; i++)
-            _t[i] = sp + (i-1)*dt;      // Set the "step"-knots
-        _t[n] = _t[n+1] = ep;           // Set the end knots
+            _knotVector[i] = sp + (i-1)*dt;      // Set the "step"-knots
+        _knotVector[n] = _knotVector[n+1] = ep;           // Set the end knots
     }
     _cl = closed;
 }
@@ -530,7 +530,7 @@ namespace GMlib {
       return;
 
     // expand knot vector
-    _t.insert( tk+1, _t(tk+1) );
+    _knotVector.insert( tk+1, _knotVector(tk+1) );
 
     // expand local curves
     PCurve<T,3> *split_curve = static_cast<PCurve<T,3>*>(_c(tk)->makeCopy());
@@ -697,13 +697,13 @@ namespace GMlib {
                 _pre_basis[i].resize(this->_visu[i].size());
 
                 for(unsigned int j=0; j<_pre_basis[i].size()-1; j++) {
-                    int k = EvaluatorStatic<T>::knotIndex(_t, this->_visu[i][j], 1, false);
+                    int k = EvaluatorStatic<T>::knotIndex(_knotVector, this->_visu[i][j], 1, false);
                     IndexBsp ii( k, 2, _c.getDim());
                     _pre_basis[i][j].B = getB(this->_visu[i][j],k,2);
                     _pre_basis[i][j].ind[0] = ii[0];
                     _pre_basis[i][j].ind[1] = ii[1];
                 }
-                int k = EvaluatorStatic<T>::knotIndex(_t, this->_visu[i][_pre_basis[i].size()-1], 1, true);
+                int k = EvaluatorStatic<T>::knotIndex(_knotVector, this->_visu[i][_pre_basis[i].size()-1], 1, true);
                 IndexBsp ii( k, 2, _c.getDim());
                 _pre_basis[i][_pre_basis[i].size()-1].B = getB(this->_visu[i][_pre_basis[i].size()-1],k,2);
                 _pre_basis[i][_pre_basis[i].size()-1].ind[0] = ii[0];
@@ -711,23 +711,23 @@ namespace GMlib {
             }
         }
         else {
-            VisPart<T> pu( _t, 2, _pct );
-            SampNr<T>  su( _t, pu, m );
+            VisPart<T> pu( _knotVector, 2, _pct );
+            SampNr<T>  su( _knotVector, pu, m );
             this->_visu.resize(su.size());
             _pre_basis.resize(su.size());
 
             for(unsigned int i=0; i<this->_visu.size(); i++) {
-                computeUniformParamVal(this->_visu[i], su[i], _t[pu[2*i]], _t[pu[2*i+1]]);
+                computeUniformParamVal(this->_visu[i], su[i], _knotVector[pu[2*i]], _knotVector[pu[2*i+1]]);
                 _pre_basis[i].resize(su[i]);
 
                 for(int j=0; j<su[i]-1; j++) {
-                    int k = EvaluatorStatic<T>::knotIndex(_t, this->_visu[i][j], 1, false);
+                    int k = EvaluatorStatic<T>::knotIndex(_knotVector, this->_visu[i][j], 1, false);
                     IndexBsp ii( k, 2, _c.getDim());
                     _pre_basis[i][j].B = getB(this->_visu[i][j],k,2);
                     _pre_basis[i][j].ind[0] = ii[0];
                     _pre_basis[i][j].ind[1] = ii[1];
                 }
-                int k = EvaluatorStatic<T>::knotIndex(_t, this->_visu[i][su[i]-1], 1, true);
+                int k = EvaluatorStatic<T>::knotIndex(_knotVector, this->_visu[i][su[i]-1], 1, true);
                 IndexBsp ii( k, 2, _c.getDim());
                 _pre_basis[i][su[i]-1].B = getB(this->_visu[i][su[i]-1],k,2);
                 _pre_basis[i][su[i]-1].ind[0] = ii[0];

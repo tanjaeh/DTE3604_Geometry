@@ -71,7 +71,7 @@ namespace GMlib {
     // Protected data for the curve
     PCurve<T,3>*        _c;
     T                   _s;
-    T                   _t;
+    T                   _knotVector;
     T                   _e;
     Vector<float,3>     _trans;
     Vector<float,3>     _c_init_pos;

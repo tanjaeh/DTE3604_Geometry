@@ -5,11 +5,21 @@
 #include "testtorus.h"
 
 // My objects
-#include "curves/modelCurve.h"
-#include "curves/B-spline_2rd_deg.h"
-#include "curves/closedSubDivisionCurve.h"
-#include "curves/BlendingSplineCurve.h"
+#include "custom/astroidCurve.h"
+#include "custom/epitrochoid.h"
+#include "custom/Vivianis_curve.h"
+#include "custom/B-spline_2rd_deg.h"
+#include "custom/closedSubDivisionCurve.h"
+#include "custom/BlendingSplineCurve.h"
+#include "custom/BlendingSplineSurface.h"
+#include "custom/modelSurface.h"
 #include <parametrics/surfaces/gmpsphere.h>
+
+#include "../../gmlib/modules/parametrics/surfaces/gmpplane.h"
+
+
+#include "scene/sceneobjects/gmpointlightg.h"
+#include "scene/sceneobjects/gmspotlightg.h"
 
 // hidmanager
 #include "hidmanager/defaulthidmanager.h"
@@ -86,22 +96,20 @@ void Scenario::initializeScenario() {
 //  ptrack2->setArrowLength(2);
 //  ptom->insert(ptrack2);
 
-//  auto modelCurve = new ModelCurve<float>(5.0f, 2.0f);
-//  modelCurve->toggleDefaultVisualizer();
-//  modelCurve->sample(60,60);
-//  this->scene()->insert(modelCurve);
+  //Add light object
+  //here...
 
 
-//  GMlib::DVector<GMlib::Vector<float, 3>> controlPoints(9);
-//  controlPoints[0] = GMlib::Vector<float, 3>(0, 0, 0);
-//  controlPoints[1] = GMlib::Vector<float, 3>(0, 1, 0);
-//  controlPoints[2] = GMlib::Vector<float, 3>(3, 0, 1);
-//  controlPoints[3] = GMlib::Vector<float, 3>(3, 4, 0);
-//  controlPoints[4] = GMlib::Vector<float, 3>(0, 1, 6);
-//  controlPoints[5] = GMlib::Vector<float, 3>(1, 1, 1);
-//  controlPoints[6] = GMlib::Vector<float, 3>(0, 8, 0);
-//  controlPoints[7] = GMlib::Vector<float, 3>(0, 1, 8);
-//  controlPoints[8] = GMlib::Vector<float, 3>(9, 0, 1);
+  bool showBspline = false;
+
+  bool showSubDivisionCurve = false;
+
+  bool showAstroid = false;
+  bool showEpitrochoid = false;
+  bool showVivianisCurve = false;
+  bool showAnimation = false;
+
+  bool showBlendingSurface = true;
 
 
   GMlib::DVector<GMlib::Vector<float,3>> controlPoints(5);
@@ -112,41 +120,125 @@ void Scenario::initializeScenario() {
   controlPoints[4] = GMlib::Vector<float,3>(0, 0, 6);
 
 
-  //Add control points to scene
-  for(int i = 0 ; i < controlPoints.getDim() ; i++){
-      auto sph = new GMlib::PSphere<float>(0.1f);
-      sph->translate(controlPoints[i]);
-      sph->toggleDefaultVisualizer();
-      sph->sample(60,60,1,1);
-      this->scene()->insert(sph);
+  if(showBspline || showSubDivisionCurve){
+      //Add control points to scene
+      for(int i = 0 ; i < controlPoints.getDim() ; i++){
+          auto sph = new GMlib::PSphere<float>(0.1f);
+          sph->translate(controlPoints[i]);
+          sph->toggleDefaultVisualizer();
+          sph->sample(60,60,1,1);
+          this->scene()->insert(sph);
+      }
   }
 
 
-  //Using linear function B = w(t)
-  auto b_spline_normal = new BSpline<float>(controlPoints, false);
-  b_spline_normal->toggleDefaultVisualizer();
-  b_spline_normal->sample(60,0);
-  this->scene()->insert(b_spline_normal);
 
-  //Using polynomial function of first order Blend = BPF(w(t))
-  auto b_spline_blend = new BSpline<float>(controlPoints, true);
-  b_spline_blend->toggleDefaultVisualizer();
-  b_spline_blend->sample(60,0);
-  b_spline_blend->setColor(GMlib::GMcolor::azure());
-  this->scene()->insert(b_spline_blend);
+  if(showBspline){
+      //Using linear function B = w(t)
+      auto b_spline_normal = new BSpline<float>(controlPoints, false);
+      b_spline_normal->toggleDefaultVisualizer();
+      b_spline_normal->sample(60,0);
+      this->scene()->insert(b_spline_normal);
+
+      //Using polynomial function of first order Blend = BPF(w(t))
+      auto b_spline_blend = new BSpline<float>(controlPoints, true);
+      b_spline_blend->toggleDefaultVisualizer();
+      b_spline_blend->sample(60,0);
+      b_spline_blend->setColor(GMlib::GMcolor::aliceBlue());
+      this->scene()->insert(b_spline_blend);
+
+      auto b_spline = new BSpline<float>(controlPoints, 4);
+      b_spline->toggleDefaultVisualizer();
+      b_spline->sample(60, 0);
+      b_spline->setColor(GMlib::GMcolor::greenYellow());
+      b_spline->showControlPoints();
+      this->scene()->insert(b_spline);
+  }
+
+  if(showSubDivisionCurve){
+      auto subDivCurve = new ClosedSubDivisionCurve<float>(controlPoints, 3);
+      subDivCurve->toggleDefaultVisualizer();
+      subDivCurve->sample(6, 0);
+      subDivCurve->setColor(GMlib::GMcolor::hotPink());
+      this->scene()->insert(subDivCurve);
+  }
 
 
-  auto b_spline = new BSpline<float>(controlPoints, 4);
-  b_spline->toggleDefaultVisualizer();
-  b_spline->sample(60, 0);
-  b_spline->setColor(GMlib::GMcolor::greenYellow());
-  this->scene()->insert(b_spline);
+  // ModelCurve and blending curve
+  if(showAstroid){
+      auto astroid = new AstroidCurve<float>(2.0f, 5.0f);
+      astroid->toggleDefaultVisualizer();
+      astroid->sample(60,60);
+      if(!showAnimation){
+         this->scene()->insert(astroid);
+      }
 
-  auto subDivCurve = new ClosedSubDivisionCurve<float>(controlPoints, 3);
-  subDivCurve->toggleDefaultVisualizer();
-  subDivCurve->sample(6, 0);
-  subDivCurve->setColor(GMlib::GMcolor::hotPink());
-  this->scene()->insert(subDivCurve);
+      if(showAnimation){
+          auto bls_astroid = new BlendingSpline<float>(astroid, 7);
+          bls_astroid->toggleDefaultVisualizer();
+          bls_astroid->sample(200, 0);
+          //bls_astroid->showControlCurves();
+          this->scene()->insert(bls_astroid);
+      }
+
+  }
+
+  if(showEpitrochoid){
+      auto epi = new Epitrochid<float>(2.0f, 5.0f);
+      epi->toggleDefaultVisualizer();
+      epi->sample(200,0);
+      if(!showAnimation){
+         this->scene()->insert(epi);
+      }
+
+      if(showAnimation){
+          auto bls_epi = new BlendingSpline<float>(epi, 11, 1);
+          bls_epi->toggleDefaultVisualizer();
+          bls_epi->sample(200, 0);
+          //bls_epi->showControlCurves();
+          this->scene()->insert(bls_epi);
+      }
+  }
+
+  if(showVivianisCurve){
+      auto vivianis = new VivianisCurve<float>(5.0f);
+      vivianis->toggleDefaultVisualizer();
+      vivianis->sample(60,60);
+      if(!showAnimation){
+         this->scene()->insert(vivianis);
+      }
+
+      if(showAnimation){
+          auto bls_vivianis = new BlendingSpline<float>(vivianis, 11);
+          bls_vivianis->toggleDefaultVisualizer();
+          bls_vivianis->sample(200, 0);
+          bls_vivianis->showControlCurves();
+          this->scene()->insert(bls_vivianis);
+      }
+  }
+
+  if(showBlendingSurface){
+      int const sampleU = 20;
+      int const sampleV = 20;
+
+//      auto copy = new GMlib::PTorus<float>(1.0f, 0.4f, 0.6f);
+//      auto copy = new GMlib::PPlane<float>(GMlib::Point<float, 3>(0.0f, 0.0f, 0.0f), GMlib::Vector<float, 3>(10.0f, 0.0f, 0.0f), GMlib::Vector<float, 3>(0.0f, 0.0f, 10.0f));
+      auto copy = new ModelSurface<float>(3.0f);
+
+
+      auto bls_surf = new BlendingSurface<float>(copy, 4, 4, sampleU, sampleV);
+      bls_surf->toggleDefaultVisualizer();
+      bls_surf->sample(sampleU, sampleV);
+      bls_surf->showControlSurf();
+      this->scene()->insert(bls_surf);
+
+
+
+  }
+
+
+
+
 
 }
 

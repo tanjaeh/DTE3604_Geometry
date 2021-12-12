@@ -119,7 +119,7 @@ namespace GMlib {
     mutable std::vector<EditSet>    _pos_change; //!< The step vector of control points that has been moved
 
     mutable bool                    _coord_ch;
-    mutable T                       _t;
+    mutable T                       _knotVector;
 
     // Local help functions
     void       reSample( int d, Sphere<T,3>& s ) const;
